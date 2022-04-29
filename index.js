@@ -1,22 +1,56 @@
-// Ex 2 - remove any item from navbar with less than minStock in stock
-// write out both the name and the number in stock in format apple:2
-function NavBar({ menuitems, minstock }) {
-    const filteredList = menuitems.filter(item => item.instock >= 2);
-    const updatedList = filteredList.map((item, index) => {
-      return <li key={index}>{item.name}</li>;
+function NavBar({ stockitems }) {
+  const [cart, setCart] = React.useState([]);
+  const [stock, setStock] = React.useState(stockitems);
+  const { Button } = ReactBootstrap;
+
+  const moveToCart = ({name, instock}) => {
+    let itemAdded = false;
+    let newStock = stock.map((item, index) => { 
+      if (item.name === name && item.instock >= 1) {
+        item.instock--;
+        itemAdded = true;
+      }
+      return item;
     });
-    // note that React needs to have a single Parent
-    return <ul style={{ listStyleType: "none" }}>{updatedList}</ul>;
-  }
-  const menuItems = [
-    { name: "apple", instock: 2 },
-    { name: "pineapple", instock: 3 },
-    { name: "pear", instock: 0 },
-    { name: "peach", instock: 3 },
-    { name: "orange", instock: 1 }
-  ];
-  ReactDOM.render(
-    <NavBar menuitems={menuItems} minstock={2} />,
-    document.getElementById("root")
+    if (itemAdded) {
+      setCart([...cart, name]);
+    }
+    setStock(newStock);
+  };
+  const updatedList = stock.map((item, index) => {
+    return (
+      <Button onClick={() => moveToCart(item)} key={index}>
+        {item.name}:{item.instock}
+      </Button>
+    );
+  });
+
+  const shoppingCart = cart.map((item, index) => {
+    return (
+      <Button key={index}>
+        {item}
+      </Button>
+    );
+  });
+
+  return (
+    <>
+      <ul style={{ listStyleType: "none" }}>{updatedList}</ul>
+      <h1>Shopping Cart</h1>
+      <ul style={{ listStyleType: "none" }}>{shoppingCart}</ul>
+    </>
   );
-  
+}
+
+const menuItems = [
+  { name: "apple", instock: 2 },
+  { name: "pineapple", instock: 3 },
+  { name: "pear", instock: 0 },
+  { name: "peach", instock: 3 },
+  { name: "orange", instock: 1 }
+];
+
+ReactDOM.render(
+  <NavBar stockitems={menuItems} />,
+  document.getElementById("root")
+);
